@@ -147,8 +147,86 @@ def cbc_custom_decrypt(key, n, cipher):
 # Question 2
 # # # # # # # # # # # # # # # # #
 
-def cbc_flip_fix():
-    pass
+def xor_all_bytes(s: bytes):
+    # Start with neutral to XOR
+    res = 0
+    for b in s:
+        res ^= b
+    return res
+
+
+def what_bit_lit(b: int):
+    # Use only the first 8 bits
+    b &= 0xFF
+
+    for i in range(8):
+        if b & (1 << i):
+            if not (b & (0xFF << (i + 1))):
+                return True, i
+            else:
+                return False, None
+    raise ValueError("No bit was lit")
+
+
+def is_only_one_byte_diff(block):
+    n = len(block) - 1
+    counts = dict()
+
+    for b in block:
+        if not b in counts:
+            counts[b] = 0
+        counts[b] += 1
+
+    for b in counts:
+        if counts[b] == n:
+            for i in range(n + 1):
+                if block[i] != b:
+                    return True, i
+    return False, None
+
+
+def cbc_flip_fix(key, n, cipher):
+    if len(key) != KEY_SIZE:
+        raise ValueError(f"Key has an invalid size: "
+                         f"expected {KEY_SIZE} bytes, got {len(key)} bytes")
+    if len(cipher) != (n + 1) * BLOCK_SIZE:
+        raise ValueError("Invalid cipher length")
+    copy = cipher
+
+    # Extract the IV
+    IV = cipher[:BLOCK_SIZE]
+
+    # Remove the IV from the cipher text
+    cipher = cipher[BLOCK_SIZE:]
+
+    # Init a cbc decryption function
+    cbc_decrypt = aes_cbc_decrypt(key, IV)
+
+    i = 0
+    # Perform until no blocks are left
+    while len(cipher) > 0:
+        # Extract the first block and remove it
+        encrypted_block = cipher[:BLOCK_SIZE]
+        cipher = cipher[BLOCK_SIZE:]
+        i += 1
+
+        # Decrypt the block
+        decrypted_block = cbc_decrypt(encrypted_block)
+
+        ok, idx = is_only_one_byte_diff(decrypted_block)
+        if ok:
+            b = decrypted_block[idx]
+            ok, j = what_bit_lit(b ^ decrypted_block[idx - 1])
+            if ok:
+                break
+    i = i-1
+    c_i = bytearray(copy[BLOCK_SIZE * i: BLOCK_SIZE * (i + 1)])
+    c_prev = copy[BLOCK_SIZE * (i - 1): BLOCK_SIZE * i]
+
+    # Flip bit j in idx byte
+    c_i[idx] ^= (1 << j)
+
+    return aes_cbc_decrypt(key, c_prev)(c_i)
 
 
 # # # # # # # # # # # # # # # # #

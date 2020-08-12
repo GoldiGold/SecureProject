@@ -4,7 +4,7 @@ from project import cbc_custom_decrypt
 from project import cbc_flip_fix
 
 
-def test_cbc_custom_decrypt(num_tests = 1000):
+def test_cbc_custom_decrypt(num_tests=1000):
     from Crypto.Random import get_random_bytes
 
     # we'll use AES CBC
@@ -25,11 +25,12 @@ def test_cbc_custom_decrypt(num_tests = 1000):
         decryption = cbc_custom_decrypt(key, i + 1, total_cipher)
 
         if decryption != total_message:
-            #raise Exception("Failed a test")
+            # raise Exception("Failed a test")
             print("Failed a test")
             break
     else:
         print(f"Passed all cbc_custom_decrypt tests ({num_tests} random tests)")
+
 
 # not used
 def output_example_test():
@@ -49,13 +50,14 @@ def output_example_test():
     else:
         print("Failed example test")
 
-def test_cbc_flip_fix(num_tests = 100, message_length=8):
+
+def test_cbc_flip_fix(num_tests=100, message_length=8):
     from Cryptodome.Random import get_random_bytes
     import random
     from functools import reduce
 
     def repeat_byte():
-        return get_random_bytes(1)*block_size
+        return get_random_bytes(1) * block_size
 
     for _ in range(num_tests):
         # we'll use AES CBC
@@ -64,7 +66,7 @@ def test_cbc_flip_fix(num_tests = 100, message_length=8):
 
         # create message and encryption
         message = reduce(lambda x, y: x + y,
-            [repeat_byte() for _ in range(message_length)])
+                         [repeat_byte() for _ in range(message_length)])
         cipher = aes.iv + aes.encrypt(message)
 
         # choose flip bit index and flip that bit
@@ -83,15 +85,17 @@ def test_cbc_flip_fix(num_tests = 100, message_length=8):
         result = cbc_flip_fix(key, message_length, flipped_cipher)
 
         if result != original_message:
-            print("Failed a test")
+            print("-----Failed a test")
             print(f"Expected Result: {list(original_message)}")
             print(f"Got: {list(result)}")
             break
+
     else:
         print("Passed all cbc_flip_fix tests successfully"
-            f"({num_tests} random tests with message of length {message_length})")
+              f"({num_tests} random tests with message of length {message_length})")
+
 
 test_cbc_custom_decrypt(num_tests=100)
 
-#for message_size in range(2, 16):
-#    test_cbc_flip_fix(message_length = message_size)
+for message_size in range(2, 16):
+    test_cbc_flip_fix(message_length=message_size)
