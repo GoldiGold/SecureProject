@@ -151,6 +151,30 @@ def cbc_flip_fix():
     pass
 
 
+# # # # # # # # # # # # # # # # #
+# Tests
+# # # # # # # # # # # # # # # # #
+
+def test_cbc_1():
+    k = b'\x81\x0ff\t\x04\xb6\xcf\x1f.\x10\x8frd\xb4E\x19'
+    n = 1
+    cipher = b'e|\x92\xd0\x8b\xd9\x00\xc8X\xf2Noi\xa1\x155\x8b\xa5\xb7\xdcka\xaa\x94=a_!x\x1a\xcf\xf4'
+    output = cbc_custom_decrypt(k, n, cipher)
+    assert output == b'1111111111111111'
+
+
+def test_cbc_2():
+    k = b'\xfcV\xc8\x7f\xcf\x8f\x9ff\x8c\xadX\xaf\xa1\x0fs\x1e'
+    IV = b'\xf51\xf7\xe4\xb1m\xda\xed\xddz\xb4\xff.\x8dN\xe6'
+    cipher = b'\xf51\xf7\xe4\xb1m\xda\xed\xddz\xb4\xff.\x8dN' \
+             b'\xe6|8\xa1x\x18@\xb1\x82\x98\x01\xb3"\xdc\x95\xc2' \
+             b'\\d{\xe8(\xb6\x93G\x8a#\x04q\xb6\x89\xbfN\x9a'
+
+    decrypted = AES.new(k, AES.MODE_CBC, cipher[:BLOCK_SIZE]).decrypt(cipher[BLOCK_SIZE:])
+    output = cbc_custom_decrypt(k, len(cipher) // BLOCK_SIZE - 1, cipher)
+    assert decrypted == output
+
+
 if __name__ == '__main__':
-    print("project push")
-    g = AES.block_size
+    test_cbc_1()
+    test_cbc_2()
