@@ -1,4 +1,4 @@
-from Cryptodome.Cipher import AES
+from Crypto.Cipher import AES
 
 block_size = 16
 

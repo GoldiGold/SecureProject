@@ -1,4 +1,6 @@
 # By Evyatar Itzhaki
+# from Crypto.Cipher import AES
+
 from glob import *
 from project import cbc_custom_decrypt
 from project import cbc_flip_fix
@@ -52,7 +54,7 @@ def output_example_test():
 
 
 def test_cbc_flip_fix(num_tests=100, message_length=8):
-    from Cryptodome.Random import get_random_bytes
+    from Crypto.Random import get_random_bytes
     import random
     from functools import reduce
 
