@@ -76,6 +76,11 @@ def aes_cbc_decrypt(key: bytes, IV: bytes):
     c_i = IV
 
     def decryptor(cipher_block: bytes):
+        """
+
+        :param cipher_block:
+        :return:
+        """
         nonlocal c_i
         # Ensure that that the given block has a valid length
         if len(cipher_block) != BLOCK_SIZE:
@@ -148,14 +153,26 @@ def cbc_custom_decrypt(key, n, cipher):
 # # # # # # # # # # # # # # # # #
 
 def xor_all_bytes(s: bytes):
+    """
+    This function is applying the xor method on all the bytes it got (byte byte).
+    :param s: the bytes to xor on.
+    :return: the result of the xor on all the bytes.
+    """
     # Start with neutral to XOR
     res = 0
+    # xoring byte byte in the string of bytes.
     for b in s:
         res ^= b
     return res
 
 
 def what_bit_lit(b: int):
+    """
+    This function gets a number and finds its single lit bit in the first 8 bits - 1st byte, if has more than 1 bit,
+    returns false, None. if doesn't have a single bit lit in the first 8 bits raise a ValueError.
+    :param b: a number
+    :return: the single bit that is lit
+    """
     # Use only the first 8 bits
     b &= 0xFF
 
@@ -169,16 +186,26 @@ def what_bit_lit(b: int):
 
 
 def is_only_one_byte_diff(block):
+    """
+    The function gets a block and checks if there is a single different byte or all similar
+    (the block is supposed to be built from repeating bytes. it counts the amount of similar blocks with a dictionary.
+    If the block is fine there will be only one key, if not then there will be a key with value of: length_of_block - 1
+    if the block is not "fine" we iterate over the bytes and find the different byte and its index.
+    :param block: a block of bytes.
+    :return: true - if there is a different byte and its index. false + None - if the bytes are fine.
+    """
     n = len(block) - 1
     counts = dict()
-
+    # iterating over each byte in the block and counting the appearances of them.
     for b in block:
-        if not b in counts:
+        if b not in counts:
             counts[b] = 0
         counts[b] += 1
 
     for b in counts:
+        # check if a byte repeats itself n times (len(block) - 1): there is a different (wrong) byte
         if counts[b] == n:
+            # if a wrong byte exists we will find it and return its index
             for i in range(n + 1):
                 if block[i] != b:
                     return True, i
@@ -186,6 +213,13 @@ def is_only_one_byte_diff(block):
 
 
 def cbc_flip_fix(key, n, cipher):
+    """
+
+    :param key:
+    :param n:
+    :param cipher:
+    :return:
+    """
     if len(key) != KEY_SIZE:
         raise ValueError(f"Key has an invalid size: "
                          f"expected {KEY_SIZE} bytes, got {len(key)} bytes")
@@ -213,13 +247,17 @@ def cbc_flip_fix(key, n, cipher):
         # Decrypt the block
         decrypted_block = cbc_decrypt(encrypted_block)
 
+        # find if there is bad byte (ok = True) and its index (idx)
         ok, idx = is_only_one_byte_diff(decrypted_block)
         if ok:
+            # find the decrypted value of the bad byte.
             b = decrypted_block[idx]
+            # find the index of the wrong bit in the byte, by xoring the bad byte to its previous byte
             ok, j = what_bit_lit(b ^ decrypted_block[idx - 1])
             if ok:
+                # we found the bit. finishing the loop
                 break
-    i = i-1
+    i = i - 1
     c_i = bytearray(copy[BLOCK_SIZE * i: BLOCK_SIZE * (i + 1)])
     c_prev = copy[BLOCK_SIZE * (i - 1): BLOCK_SIZE * i]
 
