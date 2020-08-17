@@ -1,12 +1,14 @@
 # Yaron ,Hay ,318879103
 # Python 3.7
 import Crypto.Cipher.AES as AES
-
+import tests
 # # # # # # # # # # # # # # # # #
 # Question 1
 # # # # # # # # # # # # # # # # #
 
 # Sizes of key and block are 16 bytes
+
+
 KEY_SIZE = BLOCK_SIZE = 16
 
 
@@ -300,5 +302,6 @@ def test_cbc_2():
 
 
 if __name__ == '__main__':
-    test_cbc_1()
-    test_cbc_2()
+    # test_cbc_1()
+    # test_cbc_2()
+    tests.test_part2()
