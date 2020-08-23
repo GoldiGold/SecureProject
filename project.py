@@ -191,7 +191,8 @@ def cbc_flip_fix(key, n, cipher):
     :param key: a key
     :param n: an integer
     :param cipher: A string of n + 1 blocks of 16 bytes.
-    :return:
+    :return: the result of the function aes_cbc_decrypt(key, c_prev)(block_flipped). aes_cbc_decrypt(key, c_prev) - returns a decryptor according to a
+    key and IV, that return the decryption of the corrupted block - block_flipped.
     """
     if len(key) != KEY_SIZE:
         raise ValueError(f"Key has an invalid size: "
